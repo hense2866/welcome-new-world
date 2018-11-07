@@ -1,0 +1,110 @@
+科学上网机器的搭建
+系统debian8
+
+这里可以使用秋水或者逗比的一键脚本
+
+秋水（多版本合一）
+
+原地址https://teddysun.com/486.html
+
+wget --no-check-certificate -O shadowsocks-all.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-all.sh
+chmod +x shadowsocks-all.sh
+./shadowsocks-all.sh 2>&1 | tee shadowsocks-all.log
+逗比（多用户）
+
+原地址https://doub.io/ss-jc60/
+
+wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh
+
+服务器控制机的搭建
+推荐使用 Ubuntu 系统
+
+1:首先要去 aws-IAM-访问秘钥里面创建一个秘钥
+
+ https://lightsail.aws.amazon.com/ls/webapp/account/advanced
+
+会获得一个 AWSAccessKeyId 和 AWSSecretKey
+
+2:然后运行如下代码安装组件
+
+ apt update -y
+apt install python-pip -y
+pip install awscli --upgrade
+或者
+
+yum update -y
+yum install python-pip -y
+pip install awscli --upgrade
+然后获得脚本
+
+apt install wget -y
+wget https://blog.wxlost.com/lightsailm/aws.bash && chmod +x aws.bash && ./aws.bash
+输入nano renewip.sh
+
+以下代码以个人实际实例名称为准 
+
+我的这代码的意思是 关闭名字为Debian-512MB-Tokyo3-TO-Tokyo1的服务器30秒后 再开启
+
+aws lightsail stop-instance --instance-name Debian-512MB-Tokyo3-TO-Tokyo1
+sleep 30
+aws lightsail start-instance --instance-name Debian-512MB-Tokyo3-TO-Tokyo1
+如果有多台的话 请最好中间也加上 sleep 30 以免出现未重启
+
+贴上以上代码 然后 ctrl + x 再按Y 保存 然后回车退出
+
+然后再输入
+
+crontab -e
+
+选 /bin/nano 复制一下代码到最后
+
+0 3 * * * /root/renewip.sh
+
+这行代码的意思是每天凌晨3点重启服务
+
+把以上代码加在最后一行前方注意前面不能有#
+
+然后改一下时区（视频中未提及可进行校正时区输入一下代码回车即可）
+
+timedatectl set-timezone Asia/Hong_Kong
+
+最后可以马上进行一下测试运行一下
+
+bash /root/renewip.sh
+
+看实例是否停止 30秒后 再开启
+如果是 就成功了
+
+首先安装curl
+
+apt update && apt install curl
+
+然后
+
+curl -4 "xxxxxxxxxxxxxxxxxxxxxxx:yyyyyyyyyyyyyyyy@dyn.dns.he.net/nic/update?hostname=xxxxxxxxxxxxxxxxxxxxxxx"
+
+xxxxx是你得域名 。 yyyyy为你获得的ddns code
+
+然后设置开启自动运行
+
+crontab -e
+
+选1 /bin/nano
+
+最后一行添加
+
+*/2 * * * * bash /root/update.sh
+
+依旧前面不能有#
+
+然後運行
+
+nano /root/update.sh
+
+把
+ curl -4 "http://yyyyyyyyyyyyyyyyyyy:xxxxxxxxxxxxxxx@dyn.dns.he.net/nic/update?hostname=yyyyyyyyyyyyyyyyyyyyyy"
+复制进去
+
+贴上以后按 ctrl + x 再按Y 保存 然后回车退出
+
+至此全部完成
